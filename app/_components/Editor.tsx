@@ -5,6 +5,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import "@blocknote/core/style.css";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Editor() {
 	const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -31,9 +32,24 @@ export default function Editor() {
 		},
 	});
 
-	function ExportToMD() {
-		console.log(markdown);
-		return null;
+	async function ExportToMD() {
+		try {
+			await fetch("/api", {
+				method: "POST",
+				headers: { "Content-type": "application/json" },
+				body: JSON.stringify({
+					// filename: nameInput,
+					filedata: markdown,
+				}),
+			})
+				.then((response) => {
+					console.log(response.status);
+					return response.json();
+				})
+				.then((data) => console.log(data));
+		} catch (err) {
+			console.log(err);
+		}
 	}
 
 	return (
@@ -47,12 +63,22 @@ export default function Editor() {
 				/>
 				<div className="h-16 flex gap-8 justify-center items-center">
 					<Button size={"lg"} onClick={ExportToMD} variant={"secondary"}>
-						Export to .md
+						Export
 					</Button>
 					<Button size={"lg"} variant={"secondary"}>
 						Preview
 					</Button>
 				</div>
+				<Button
+					asChild
+					size={"lg"}
+					className="text-muted-foreground max-w-xs mx-auto"
+					variant={"ghost"}
+				>
+					<Link target="_blank" href={"https://noahpittman.xyz"}>
+						by: Noah Pittman
+					</Link>
+				</Button>
 			</pre>
 		</div>
 	);
